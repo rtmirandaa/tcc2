@@ -1,0 +1,218 @@
+/* ======== ESTILO GERAL ======== */
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: #f5f6f8;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+/* ======== CABEÇALHO ======== */
+header {
+  background-color: #005baa;
+  color: white;
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo img {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+}
+
+header h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ======== CONTEÚDO PRINCIPAL ======== */
+main {
+  padding: 40px;
+  max-width: 900px;
+  margin: 40px auto;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2, h3 {
+  color: #004080;
+}
+
+.intro, .content {
+  margin-bottom: 30px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+ul li {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* ======== CHATBOT FLUTUANTE ======== */
+#chatbot {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+/* Botão circular */
+#chat-toggle {
+  background-color: #005baa;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 1.8rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+#chat-toggle:hover {
+  background-color: #004080;
+  transform: scale(1.1);
+}
+
+/* Caixa do chat */
+#chat-container {
+  display: none;
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 340px;
+  height: 420px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  flex-direction: column;
+  transition: all 0.4s ease;
+}
+
+#chat-container.open {
+  display: flex;
+  animation: slideUp 0.4s ease;
+}
+
+/* Animação suave */
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Cabeçalho do chat */
+#chat-header {
+  background-color: #005baa;
+  color: white;
+  padding: 12px;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 12px 12px 0 0;
+  letter-spacing: 0.5px;
+}
+
+/* Área de mensagens */
+#chat-messages {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Estilos das mensagens */
+.user-msg, .bot-msg {
+  max-width: 80%;
+  margin: 6px 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  word-wrap: break-word;
+  line-height: 1.4;
+  font-size: 0.95rem;
+}
+
+/* Mensagens do usuário */
+.user-msg {
+  background-color: #d0e6ff;
+  align-self: flex-end;
+  text-align: right;
+}
+
+/* Mensagens do bot */
+.bot-msg {
+  background-color: #eaeaea;
+  align-self: flex-start;
+  text-align: left;
+}
+
+/* Área de input */
+#chat-input-area {
+  display: flex;
+  border-top: 1px solid #ccc;
+  background: #f2f2f2;
+  padding: 8px;
+}
+
+#chat-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.95rem;
+}
+
+#chat-send {
+  background-color: #005baa;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-left: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+#chat-send:hover {
+  background-color: #004080;
+}
+
+/* ======== SCROLLBAR PERSONALIZADA ======== */
+#chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+#chat-messages::-webkit-scrollbar-thumb {
+  background-color: #bbb;
+  border-radius: 10px;
+}
+
+#chat-messages::-webkit-scrollbar-thumb:hover {
+  background-color: #888;
+}

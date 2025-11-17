@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manual do Aluno - UFRGS</title>
+
+  <!-- ✅ Importação correta para Flask -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <!-- Substitua o texto abaixo pelo seu ícone base64 -->
+      <img src="data:image/png;base64,==" alt="Logo UFRGS" />
+      <h1>Manual do Aluno - UFRGS</h1>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h2>Bem-vindo ao Manual do Aluno</h2>
+      <p>
+        Este manual foi criado para ajudar os estudantes da UFRGS a conhecerem melhor
+        os serviços, estruturas e oportunidades disponíveis dentro da universidade.
+      </p>
+    </section>
+
+    <section class="content">
+      <h3>O que você encontrará aqui</h3>
+      <ul>
+        <li>📘 Informações sobre matrículas, disciplinas e horários</li>
+        <li>🏫 Detalhes sobre bibliotecas, laboratórios e centros estudantis</li>
+        <li>💼 Orientações sobre estágios, bolsas e intercâmbios</li>
+        <li>🤝 Dicas para aproveitar ao máximo sua experiência universitária</li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- Chatbot flutuante -->
+  <div id="chatbot">
+    <button id="chat-toggle">💬</button>
+    <div id="chat-container">
+      <div id="chat-header">Assistente UFRGS</div>
+      <div id="chat-messages"></div>
+      <div id="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Digite sua pergunta..." />
+        <button id="chat-send">Enviar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Script puxado corretamente pelo Flask -->
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
