@@ -1,19 +1,42 @@
-# main.py
+# main.py (VERSÃO MAIS LIMPA)
 """
-Ponto de entrada da aplicação.
-Inicia o Flask carregando a estrutura modular (app/__init__.py).
-Também garante atualização dos embeddings antes de iniciar o servidor.
+Ponto de entrada da aplicação Flask.
 """
+
+import os
+import logging
+
+import app
+print(f"USANDO APP EM: {app.__file__}") # Este é útil, vamos deixar
+
 
 from app import create_app
 from app.chroma_manager import update_embeddings
 
 
-if __name__ == "__main__":
-    # Atualiza embeddings dos PDFs antes de subir o servidor
-    print("[INFO] Atualizando embeddings dos PDFs...")
-    update_embeddings()
+logger = logging.getLogger("main")
+logger.setLevel(logging.INFO)
 
-    print("[INFO] Iniciando servidor Flask...")
-    app = create_app()
-    app.run(host="127.0.0.1", port=5000, debug=True)
+
+if __name__ == "__main__":
+
+    BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+    os.chdir(BASE_DIR)
+
+    # 1. ATUALIZA OS EMBEDDINGS (agora com prints limpos)
+    try:
+        update_embeddings()
+    except Exception as e:
+        print(f"[ERRO GRAVE] Falha ao atualizar embeddings: {e}\n")
+        print(">> O servidor será iniciado, mas o RAG pode não funcionar.\n")
+
+    # 2. INICIA O FLASK
+    print("\n--- Iniciando servidor Flask ---")
+
+    app_flask = create_app()
+
+    app_flask.run(
+        host="127.0.0.1",
+        port=5000,
+        debug=True
+    )

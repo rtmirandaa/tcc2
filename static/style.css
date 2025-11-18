@@ -1,70 +1,155 @@
-/* ======== ESTILO GERAL ======== */
+/* ============================================================
+   ESTILO GLOBAL
+   ============================================================ */
+:root {
+  /* Paleta extraída da imagem do padrão */
+  --cor-fundo: #f2f0e9;       /* Creme suave (fundo geral) */
+  --cor-header: #ffffff;      /* Branco (para fundir com o logo JPG) */
+  --cor-primaria: #9e8e58;    /* Dourado/Bronze envelhecido (botões e ícones) */
+  --cor-primaria-dark: #7a6d42; /* Versão mais escura para hover */
+  --cor-texto: #2c2c2c;       /* Cinza quase preto (leitura) */
+  --cor-texto-suave: #555555;
+}
+
 body {
-  font-family: "Segoe UI", Arial, sans-serif;
-  background-color: #f5f6f8;
-  color: #333;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
   margin: 0;
   padding: 0;
 }
 
-/* ======== CABEÇALHO ======== */
+/* ============================================================
+   CABEÇALHO
+   ============================================================ */
 header {
-  background-color: #005baa;
-  color: white;
-  padding: 20px 40px;
+  background-color: var(--cor-header);
+  color: var(--cor-texto);
+  padding: 15px 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  /* Uma borda sutil embaixo para separar do fundo creme */
+  border-bottom: 4px solid var(--cor-primaria); 
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
 }
 
 .logo img {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
+  height: 70px; /* Aumentei um pouco para o logo ficar legível */
+  /* Sem border-radius para não cortar os cantos do JPG */
 }
 
 header h1 {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 600;
   text-align: center;
+  margin: 0;
+  color: #000; /* Texto preto para combinar com o logo */
+  border-left: 1px solid #ccc; /* Separador vertical */
+  padding-left: 20px;
 }
 
-/* ======== CONTEÚDO PRINCIPAL ======== */
+/* ============================================================
+   CONTEÚDO PRINCIPAL (CARDS)
+   ============================================================ */
 main {
   padding: 40px;
-  max-width: 900px;
+  max-width: 1000px;
   margin: 40px auto;
   background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  text-align: center;
+  border-top: 1px solid #eee;
 }
 
-h2, h3 {
-  color: #004080;
+.intro h2 {
+  color: var(--cor-primaria-dark); /* Título em dourado escuro */
+  margin-bottom: 15px;
+  font-size: 1.8rem;
 }
 
-.intro, .content {
+.intro p {
+  color: var(--cor-texto-suave);
+  font-size: 1.1rem;
+  margin-bottom: 40px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+/* --- GRADE DE SUGESTÕES --- */
+.suggestions h3 {
+  color: var(--cor-texto);
+  font-size: 1.1rem;
   margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+  border-bottom: 2px solid var(--cor-primaria); /* Linha dourada */
+  display: inline-block;
+  padding-bottom: 8px;
 }
 
-ul {
-  list-style: none;
-  padding: 0;
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  text-align: left;
 }
 
-ul li {
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
+.card {
+  background: #fcfbf9; /* Um branco levemente creme */
+  border: 1px solid #e0e0e0;
+  border-left: 5px solid var(--cor-primaria); /* Lateral dourada */
+  border-radius: 6px;
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* ======== CHATBOT FLUTUANTE ======== */
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  background: #fff;
+  border-color: var(--cor-primaria);
+}
+
+.card .icon {
+  font-size: 1.8rem;
+  display: block;
+  margin-bottom: 12px;
+  /* Filtro opcional para deixar emojis menos coloridos, se quiser */
+  /* filter: sepia(1) hue-rotate(10deg); */ 
+}
+
+.card h4 {
+  color: var(--cor-primaria-dark);
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.card p {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 6px 0;
+  font-style: italic;
+  background: #f0ede6; /* Fundo do texto igual ao fundo do site */
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+
+/* ============================================================
+   CHATBOT FLUTUANTE
+   ============================================================ */
 #chatbot {
   position: fixed;
   bottom: 20px;
@@ -72,9 +157,9 @@ ul li {
   z-index: 1000;
 }
 
-/* Botão circular */
+/* Botão redondo do chat */
 #chat-toggle {
-  background-color: #005baa;
+  background-color: var(--cor-primaria); /* Dourado/Bronze */
   color: white;
   border: none;
   border-radius: 50%;
@@ -82,12 +167,15 @@ ul li {
   height: 60px;
   font-size: 1.8rem;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #chat-toggle:hover {
-  background-color: #004080;
+  background-color: var(--cor-primaria-dark);
   transform: scale(1.1);
 }
 
@@ -97,14 +185,15 @@ ul li {
   position: fixed;
   bottom: 90px;
   right: 20px;
-  width: 340px;
-  height: 420px;
+  width: 360px;
+  height: 480px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   flex-direction: column;
   transition: all 0.4s ease;
+  border: 1px solid #ddd;
 }
 
 #chat-container.open {
@@ -112,107 +201,113 @@ ul li {
   animation: slideUp 0.4s ease;
 }
 
-/* Animação suave */
 @keyframes slideUp {
-  from {
-    transform: translateY(30px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
-/* Cabeçalho do chat */
+/* Cabeçalho interno do chat */
 #chat-header {
-  background-color: #005baa;
+  background-color: var(--cor-primaria);
   color: white;
-  padding: 12px;
+  padding: 15px;
   font-weight: bold;
   text-align: center;
-  border-radius: 12px 12px 0 0;
-  letter-spacing: 0.5px;
+  font-size: 1.05rem;
 }
 
 /* Área de mensagens */
 #chat-messages {
   flex: 1;
-  padding: 12px;
+  padding: 15px;
   overflow-y: auto;
   background-color: #f9f9f9;
   display: flex;
   flex-direction: column;
+  gap: 10px;
 }
 
-/* Estilos das mensagens */
 .user-msg, .bot-msg {
-  max-width: 80%;
-  margin: 6px 0;
-  padding: 8px 12px;
+  max-width: 85%;
+  padding: 10px 14px;
   border-radius: 12px;
   word-wrap: break-word;
-  line-height: 1.4;
+  line-height: 1.5;
   font-size: 0.95rem;
 }
 
-/* Mensagens do usuário */
 .user-msg {
-  background-color: #d0e6ff;
+  background-color: #e8e4d0; /* Bege escuro para o usuário */
+  color: #222;
   align-self: flex-end;
   text-align: right;
+  border-bottom-right-radius: 2px;
 }
 
-/* Mensagens do bot */
 .bot-msg {
-  background-color: #eaeaea;
+  background-color: #e0e0e0;
+  color: #000;
   align-self: flex-start;
   text-align: left;
+  border-bottom-left-radius: 2px;
+}
+
+/* Links dentro do chat */
+.bot-msg a {
+  color: var(--cor-primaria-dark);
+  text-decoration: underline;
+  font-weight: 600;
+}
+.bot-msg a:hover {
+  color: #000;
 }
 
 /* Área de input */
 #chat-input-area {
   display: flex;
-  border-top: 1px solid #ccc;
-  background: #f2f2f2;
-  padding: 8px;
+  border-top: 1px solid #e0e0e0;
+  background: #fff;
+  padding: 10px;
 }
 
 #chat-input {
   flex: 1;
-  padding: 8px;
+  padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 20px;
   outline: none;
   font-size: 0.95rem;
+  background: #fdfdfd;
+}
+
+#chat-input:focus {
+  border-color: var(--cor-primaria);
 }
 
 #chat-send {
-  background-color: #005baa;
+  background-color: var(--cor-primaria);
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 8px 14px;
+  border-radius: 20px;
+  padding: 0 18px;
   margin-left: 8px;
   cursor: pointer;
   font-weight: bold;
-  transition: background 0.3s ease;
+  transition: background 0.2s;
 }
 
 #chat-send:hover {
-  background-color: #004080;
+  background-color: var(--cor-primaria-dark);
 }
 
-/* ======== SCROLLBAR PERSONALIZADA ======== */
+/* Scrollbar personalizada */
 #chat-messages::-webkit-scrollbar {
   width: 6px;
 }
-
 #chat-messages::-webkit-scrollbar-thumb {
-  background-color: #bbb;
+  background-color: #ccc;
   border-radius: 10px;
 }
-
 #chat-messages::-webkit-scrollbar-thumb:hover {
-  background-color: #888;
+  background-color: #999;
 }

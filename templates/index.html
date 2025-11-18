@@ -3,46 +3,80 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manual do Aluno - UFRGS</title>
+  
+  <title>Manual do Aluno - Instituto de Letras</title>
 
-  <!-- ✅ Importação correta para Flask -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
 </head>
+
 <body>
+
   <header>
     <div class="logo">
-      <!-- Substitua o texto abaixo pelo seu ícone base64 -->
-      <img src="data:image/png;base64,==" alt="Logo UFRGS" />
-      <h1>Manual do Aluno - UFRGS</h1>
+      <img src="{{ url_for('static', filename='images/logo_letras_ufrgs.png') }}" alt="Logo Instituto de Letras UFRGS"/>
+      <h1>Manual do Aluno - Instituto de Letras</h1>
     </div>
   </header>
 
+
   <main>
     <section class="intro">
-      <h2>Bem-vindo ao Manual do Aluno</h2>
+      <h2>Como posso te ajudar hoje?</h2>
       <p>
-        Este manual foi criado para ajudar os estudantes da UFRGS a conhecerem melhor
-        os serviços, estruturas e oportunidades disponíveis dentro da universidade.
+        Sou seu assistente virtual do Instituto de Letras. 
+        Tire dúvidas sobre matrículas, estágios, TCC e rotinas acadêmicas 
+        de forma rápida, sem precisar procurar em vários documentos.
       </p>
     </section>
 
-    <section class="content">
-      <h3>O que você encontrará aqui</h3>
-      <ul>
-        <li>📘 Informações sobre matrículas, disciplinas e horários</li>
-        <li>🏫 Detalhes sobre bibliotecas, laboratórios e centros estudantis</li>
-        <li>💼 Orientações sobre estágios, bolsas e intercâmbios</li>
-        <li>🤝 Dicas para aproveitar ao máximo sua experiência universitária</li>
-      </ul>
+    <section class="suggestions">
+      <h3>Experimente perguntar sobre:</h3>
+      
+      <div class="grid-container">
+        
+        <div class="card">
+          <span class="icon">📅</span>
+          <h4>Matrícula</h4>
+          <p>"Como funciona a encomenda de matrícula?"</p>
+          <p>"O que é quebra de pré-requisito?"</p>
+        </div>
+
+        <div class="card">
+          <span class="icon">🎓</span>
+          <h4>TCC e Formatura</h4>
+          <p>"Qual o prazo para entrega do TCC?"</p>
+          <p>"Quais os requisitos para a Láurea Acadêmica?"</p>
+        </div>
+
+        <div class="card">
+          <span class="icon">🏫</span>
+          <h4>Estágios</h4>
+          <p>"Como faço estágio não obrigatório?"</p>
+          <p>"O que é o plano de recuperação da TIMD?"</p>
+        </div>
+
+        <div class="card">
+          <span class="icon">📞</span>
+          <h4>Contatos Úteis</h4>
+          <p>"Qual o e-mail da COMGRAD?"</p>
+          <p>"Como pedir licença saúde?"</p>
+        </div>
+
+      </div>
     </section>
   </main>
 
-  <!-- Chatbot flutuante -->
+
   <div id="chatbot">
     <button id="chat-toggle">💬</button>
+
     <div id="chat-container">
-      <div id="chat-header">Assistente UFRGS</div>
+      <div id="chat-header">Assistente Letras UFRGS</div>
+
       <div id="chat-messages"></div>
+
       <div id="chat-input-area">
         <input type="text" id="chat-input" placeholder="Digite sua pergunta..." />
         <button id="chat-send">Enviar</button>
@@ -50,7 +84,8 @@
     </div>
   </div>
 
-  <!-- ✅ Script puxado corretamente pelo Flask -->
+
   <script src="{{ url_for('static', filename='script.js') }}"></script>
+
 </body>
 </html>

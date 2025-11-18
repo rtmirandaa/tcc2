@@ -1,20 +1,16 @@
-# app/chroma_manager.py
+# app/chroma_manager.py (VERSÃO COM 5 ETAPAS)
 """
-Gerenciamento completo do ChromaDB:
- - Criação / carregamento da coleção
- - Inserção de chunks com metadados
- - Detecção de alterações nos PDFs via hash
- - Atualização incremental (remove apenas PDFs alterados)
- - Buscas vetoriais (normal + expandida)
+Gerenciamento do ChromaDB.
 """
 
 import os
 import json
 import hashlib
 import logging
-from typing import Dict
+from typing import Dict, List, Any
 
 import chromadb
+from tqdm import tqdm
 
 from app.config import (
     CHROMA_DB_PATH,
@@ -25,32 +21,41 @@ from app.config import (
 from app.embeddings import get_embedding_function
 from app.pdf_loader import extract_text_from_pdf
 
+
 logger = logging.getLogger("app.chroma_manager")
 logger.setLevel(logging.INFO)
 
 
-# ==============================================================
-# Inicia o client do ChromaDB
-# ==============================================================
-
+# -----------------------------------------------------------
+# Cliente do ChromaDB
+# -----------------------------------------------------------
 def get_chroma_client():
-    return chromadb.PersistentClient(path=CHROMA_DB_PATH)
+    try:
+        abs_path = os.path.abspath(CHROMA_DB_PATH)
+        client = chromadb.PersistentClient(path=abs_path)
+        return client
+    except Exception as e:
+        logger.error(f"Erro ao iniciar ChromaDB em '{CHROMA_DB_PATH}': {e}")
+        raise
 
 
-# ==============================================================
-# Hashing dos PDFs
-# ==============================================================
-
+# -----------------------------------------------------------
+# Hashing de PDFs
+# -----------------------------------------------------------
 def compute_pdf_hash(pdf_path: str) -> str:
-    """Retorna o hash MD5 do PDF."""
-    if not os.path.exists(pdf_path):
+    abs_path = os.path.abspath(pdf_path)
+    if not os.path.exists(abs_path):
+        logger.error(f"Arquivo PDF não encontrado: {abs_path}")
         return ""
-    with open(pdf_path, "rb") as f:
-        return hashlib.md5(f.read()).hexdigest()
+    try:
+        with open(abs_path, "rb") as f:
+            return hashlib.md5(f.read()).hexdigest()
+    except Exception as e:
+        logger.error(f"Erro ao calcular hash de '{pdf_path}': {e}")
+        return ""
 
 
 def load_hash_map() -> Dict[str, str]:
-    """Carrega arquivo JSON com hashes."""
     if os.path.exists(HASH_MAP_FILE):
         try:
             with open(HASH_MAP_FILE, "r", encoding="utf-8") as fh:
@@ -61,146 +66,166 @@ def load_hash_map() -> Dict[str, str]:
 
 
 def save_hash_map(hash_map: Dict[str, str]):
-    with open(HASH_MAP_FILE, "w", encoding="utf-8") as fh:
-        json.dump(hash_map, fh, indent=2, ensure_ascii=False)
+    try:
+        with open(HASH_MAP_FILE, "w", encoding="utf-8") as fh:
+            json.dump(hash_map, fh, indent=2, ensure_ascii=False)
+    except Exception as e:
+        logger.error(f"Erro ao salvar hash map '{HASH_MAP_FILE}': {e}")
 
 
-# ==============================================================
-# Criar coleção
-# ==============================================================
-
+# -----------------------------------------------------------
+# Obter ou criar coleção
+# -----------------------------------------------------------
 def get_or_create_collection():
     client = get_chroma_client()
-    return client.get_or_create_collection(
-        name=COLLECTION_NAME,
-        embedding_function=get_embedding_function()
-    )
+    try:
+        collection = client.get_or_create_collection(
+            name=COLLECTION_NAME,
+            embedding_function=get_embedding_function()
+        )
+        return collection
+    except Exception as e:
+        logger.error(f"Erro ao criar/abrir coleção '{COLLECTION_NAME}': {e}")
+        raise
 
 
-# ==============================================================
-# Remover chunks antigos
-# ==============================================================
-
+# -----------------------------------------------------------
+# Remover chunks de um PDF específico
+# -----------------------------------------------------------
 def remove_pdf_chunks(collection, pdf_name: str):
     try:
-        # Não incluir "ids" aqui – Chroma não aceita isso no include
         result = collection.get(include=["metadatas"])
-
         ids = result.get("ids", [])
         metadatas = result.get("metadatas", [])
 
-        # Flatten nested lists
-        if isinstance(ids, list) and ids and isinstance(ids[0], list):
+        if ids and isinstance(ids[0], list):
             ids = ids[0]
-        if isinstance(metadatas, list) and metadatas and isinstance(metadatas[0], list):
+        if metadatas and isinstance(metadatas[0], list):
             metadatas = metadatas[0]
 
         ids_to_delete = [
-            id_
-            for id_, md in zip(ids, metadatas)
+            _id for _id, md in zip(ids, metadatas)
             if isinstance(md, dict) and md.get("pdf_name") == pdf_name
         ]
 
         if ids_to_delete:
-            collection.delete(ids_to_delete)
-            logger.info(f"Removidos {len(ids_to_delete)} chunks antigos de {pdf_name}.")
-        else:
-            logger.info(f"Nenhum chunk antigo encontrado para {pdf_name}.")
-
+            collection.delete(ids=ids_to_delete)
+            # print(f"    -> Removidos {len(ids_to_delete)} chunks antigos.") # Opcional
     except Exception as e:
-        logger.error(f"Erro ao remover chunks antigos de {pdf_name}: {e}")
+        logger.error(f"Erro ao remover chunks de '{pdf_name}': {e}")
 
 
-# ==============================================================
-# Reindexação incremental
-# ==============================================================
-
+# -----------------------------------------------------------
+# Atualização incremental (COM AS 5 ETAPAS)
+# -----------------------------------------------------------
 def update_embeddings():
-    hash_old = load_hash_map()
-    hash_new = {}
+    
+    print("\n--- Iniciando verificação do banco de dados (RAG) ---")
 
+    print("Etapa 1/5: Carregando hashes...")
+    old_hashes = load_hash_map()
+    new_hashes = {}
+    
+    print("Etapa 2/5: Abrindo coleção no ChromaDB...")
     collection = get_or_create_collection()
 
+    import gc
+    pdf_atualizado = False
+
     for pdf in PDF_FILES:
-        logger.info(f"Verificando alterações em: {pdf}")
-
+        print(f"Etapa 3/5: Verificando PDF '{os.path.basename(pdf)}'...")
         current_hash = compute_pdf_hash(pdf)
-        hash_new[pdf] = current_hash
+        new_hashes[pdf] = current_hash
 
-        # Se o hash mudou → precisa reindexar
-        if hash_old.get(pdf) != current_hash:
-            logger.info(f"Alteração detectada → Reindexando {pdf}")
+        if not current_hash:
+            continue
 
-            # Remover chunks antigos do mesmo PDF
-            remove_pdf_chunks(collection, pdf)
+        if old_hashes.get(pdf) == current_hash:
+            print("    -> PDF sem modificações.")
+            continue
 
-            # Extrair novos chunks
-            docs = extract_text_from_pdf(pdf)
-            if not docs:
-                logger.warning(f"Nenhum texto extraído de {pdf}.")
-                continue
+        # Se chegou aqui, o PDF mudou
+        pdf_atualizado = True
+        print(f"Etapa 4/5: PDF modificado. Extraindo texto...")
+        docs = extract_text_from_pdf(pdf)
 
-            ids = []
-            texts = []
-            metadatas = []
+        if not docs:
+            print("    -> Nenhum texto extraído.")
+            continue
 
-            for i, d in enumerate(docs):
-                doc_id = f"{os.path.basename(pdf)}__page{d['page_number']}__chunk{i}"
+        print(f"Etapa 5/5: Indexando {len(docs)} chunks (isso pode demorar)...")
+        remove_pdf_chunks(collection, pdf) # Limpa chunks antigos
 
-                ids.append(doc_id)
-                texts.append(d["text"])
+        BATCH_SIZE = 5 # (Pequeno para não travar o Ollama)
+        batch_docs = []
+        batch_ids = []
+        batch_metas = []
+        count = 0
 
-                metadatas.append({
-                    "pdf_name": pdf,
-                    "page_number": d["page_number"],
-                    "char_start": d["char_start"],
-                    "char_end": d["char_end"],
-                    "contains_paren_link": d["contains_paren_link"],
-                    "source_urls": "||".join(d["source_urls"]) if d["source_urls"] else ""
-                })
-
-            # Inserir no Chroma
-            collection.add(
-                documents=texts,
-                metadatas=metadatas,
-                ids=ids,
+        # Usamos tqdm aqui para ter uma barra de progresso!
+        for i, d in tqdm(enumerate(docs), total=len(docs), desc="    -> Indexando"):
+            doc_id = (
+                f"{os.path.basename(pdf)}__page{d['page_number']}__chunk{i}"
             )
 
-            logger.info(f"Reindexados {len(texts)} chunks de {pdf}")
+            batch_docs.append(d["text"])
+            batch_ids.append(doc_id)
+            batch_metas.append({
+                "pdf_name": pdf,
+                "page_number": d["page_number"],
+                "char_start": d["char_start"],
+                "char_end": d["char_end"],
+                "contains_paren_link": d["contains_paren_link"],
+                "source_urls": d["source_urls"] # Já deve ser '||' do loader
+            })
 
-        else:
-            logger.info(f"Nenhuma alteração em {pdf}. Mantendo embeddings existentes.")
+            if len(batch_docs) == BATCH_SIZE:
+                collection.add(
+                    documents=batch_docs,
+                    ids=batch_ids,
+                    metadatas=batch_metas
+                )
+                count += len(batch_docs)
+                batch_docs.clear()
+                batch_ids.clear()
+                batch_metas.clear()
+                gc.collect() 
 
-    save_hash_map(hash_new)
-    logger.info("Hash map atualizado.")
+        # enviar o resto
+        if batch_docs:
+            collection.add(
+                documents=batch_docs,
+                ids=batch_ids,
+                metadatas=batch_metas
+            )
+            count += len(batch_docs)
+            gc.collect()
+
+        print(f"    -> {count} chunks indexados com sucesso.")
+
+    if not pdf_atualizado:
+        print("Etapa 3/5: Verificação concluída. Nenhum PDF modificado.")
+        print("Etapa 4/5: Pulada.")
+        print("Etapa 5/5: Pulada.")
 
 
-# ==============================================================
-# Buscar no vetor — sem 'ids'
-# ==============================================================
+    save_hash_map(new_hashes)
+    print("--- Verificação do RAG concluída! ---")
 
+
+# -----------------------------------------------------------
+# Busca vetorial (sem mudanças)
+# -----------------------------------------------------------
 def vector_search(collection, query: str, alt_query: str, k: int = 20):
-    """
-    Retorna a busca principal + expandida
-    """
-    try:
-        res_main = collection.query(
-            query_texts=[query],
-            n_results=k,
-            include=["documents", "metadatas", "distances"]
-        )
-    except Exception as e:
-        print("Erro na busca principal:", e)
-        res_main = {}
+    def _safe_query(q):
+        try:
+            return collection.query(
+                query_texts=[q],
+                n_results=k,
+                include=["documents", "metadatas", "distances"]
+            )
+        except Exception as e:
+            logger.error(f"Erro na busca vetorial com '{q}': {e}")
+            return {"documents": [], "metadatas": [], "distances": [], "ids": []}
 
-    try:
-        res_alt = collection.query(
-            query_texts=[alt_query],
-            n_results=k,
-            include=["documents", "metadatas", "distances"]
-        )
-    except Exception as e:
-        print("Erro na busca expandida:", e)
-        res_alt = {}
-
-    return res_main, res_alt
+    return _safe_query(query), _safe_query(alt_query)
