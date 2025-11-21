@@ -1,14 +1,10 @@
-// static/script.js
-
 const chatToggle = document.getElementById("chat-toggle");
 const chatContainer = document.getElementById("chat-container");
 const chatMessages = document.getElementById("chat-messages");
 const chatInput = document.getElementById("chat-input");
 const chatSend = document.getElementById("chat-send");
 
-// ----------------------------------------------------------
-// Abertura/fechamento do chat
-// ----------------------------------------------------------
+// Abrir/Fechar Chat
 chatToggle.addEventListener("click", () => {
   chatContainer.classList.toggle("open");
   if (chatContainer.classList.contains("open")) {
@@ -25,60 +21,58 @@ chatInput.addEventListener("keypress", e => {
   }
 });
 
-
-// ----------------------------------------------------------
-// Função segura para criar mensagens do bot
-// (remove innerHTML e mantém links clicáveis com segurança)
-// ----------------------------------------------------------
+// --- FUNÇÃO DE FORMATAÇÃO (CIRURGIÃO DE LINKS) ---
 function createBotMessage(text) {
   const botMsg = document.createElement("div");
   botMsg.className = "bot-msg";
 
-  // Divide a mensagem com base em URLs detectadas
-  const parts = text.split(/(https?:\/\/[^\s]+)/g);
+  let formatted = text;
 
-  parts.forEach(part => {
-    if (/^https?:\/\//.test(part)) {
-      const a = document.createElement("a");
-      a.href = part;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.textContent = part;
-      botMsg.appendChild(a);
-    } else {
-      botMsg.appendChild(document.createTextNode(part));
+  // 1. Negrito: **texto** vira <strong>texto</strong>
+  formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+  // 2. Listas: " * texto" ou "* texto" vira pular linha + bolinha
+  formatted = formatted.replace(/(^|\s)\* (.*?)/g, '\n• $2');
+
+  // 3. LINKS (A CORREÇÃO ESTÁ AQUI)
+// Regex para detecção de links
+  const urlRegex = /((https?:\/\/|www\.|[\w.-]*\.?ufrgs\.br)[^\s<]*)/g;
+
+  formatted = formatted.replace(urlRegex, (match) => {
+    
+    let cleanUrl = match.replace(/[.,;>)]+$/, "");                                          // Remove pontuação final
+
+                                                                                            // Remove prefixos incorretos
+    if (cleanUrl.startsWith(".")) {cleanUrl = cleanUrl.substring(1);}
+    if (cleanUrl.startsWith("1.")) {cleanUrl = cleanUrl.substring(2);}
+
+                                                                                            // Adiciona https
+    let href = cleanUrl;
+    if (!href.startsWith("http")) {
+      href = "https://" + href;
     }
+
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer">${cleanUrl}</a>`;
   });
 
+  botMsg.innerHTML = formatted;
   return botMsg;
 }
+// -------------------------------------------------
 
-
-// ----------------------------------------------------------
-// Função de scroll automático
-// ----------------------------------------------------------
 function scrollToBottom() {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-
-// ----------------------------------------------------------
-// Append de mensagens
-// ----------------------------------------------------------
 function appendMessage(element) {
   chatMessages.appendChild(element);
   scrollToBottom();
 }
 
-
-// ----------------------------------------------------------
-// Envio da pergunta ao backend
-// ----------------------------------------------------------
 function sendMessage() {
   const text = chatInput.value.trim();
   if (!text) return;
 
-  // Mensagem do usuário
   const userMsg = document.createElement("div");
   userMsg.className = "user-msg";
   userMsg.textContent = text;
@@ -87,39 +81,32 @@ function sendMessage() {
   chatInput.value = "";
   chatInput.focus();
 
-  // Mensagem de carregamento
   const loadingMsg = document.createElement("div");
   loadingMsg.className = "bot-msg";
-  loadingMsg.textContent = "Carregando resposta...";
+  loadingMsg.textContent = "Digitando...";
   appendMessage(loadingMsg);
 
-  // Requisição ao backend
   fetch("/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ question: text })
   })
     .then(res => {
-      if (!res.ok) {
-        throw new Error("Falha na requisição ao servidor.");
-      }
+      if (!res.ok) throw new Error("Erro na rede");
       return res.json();
     })
     .then(data => {
       loadingMsg.remove();
-
-      const resposta = data?.answer || "Não consegui responder.";
+      const resposta = data?.answer || "Desculpe, não consegui responder.";
       const botMsg = createBotMessage(resposta);
       appendMessage(botMsg);
     })
     .catch(err => {
       loadingMsg.remove();
-
       const errorMsg = document.createElement("div");
       errorMsg.className = "bot-msg";
-      errorMsg.textContent = "Erro ao conectar ao servidor.";
+      errorMsg.textContent = "Erro de conexão.";
       appendMessage(errorMsg);
-
-      console.error("Erro:", err);
+      console.error(err);
     });
 }

@@ -15,11 +15,10 @@
 
   <header>
     <div class="logo">
-      <img src="{{ url_for('static', filename='images/logo_letras_ufrgs.png') }}" alt="Logo Instituto de Letras UFRGS"/>
+      <img src="{{ url_for('static', filename='images/logo_letras_ufrgs.png') }}" alt="Logo Instituto de Letras UFRGS" onerror="this.style.display='none'"/>
       <h1>Manual do Aluno - Instituto de Letras</h1>
     </div>
   </header>
-
 
   <main>
     <section class="intro">
@@ -68,22 +67,29 @@
     </section>
   </main>
 
+  <footer>
+    <div class="footer-container">
+      <p>&copy; 2025 Instituto de Letras - UFRGS. Todos os direitos reservados.</p>
+      <p class="footer-sub">Desenvolvido como Projeto de TCC para apoio à COMGRAD.</p>
+      
+      <a href="https://forms.gle/wedJnzAAyrbpgchr6" target="_blank" class="feedback-btn">
+        ⭐ Avaliar Atendimento
+      </a>
+    </div>
+  </footer>
 
   <div id="chatbot">
     <button id="chat-toggle">💬</button>
 
     <div id="chat-container">
       <div id="chat-header">Assistente Letras UFRGS</div>
-
       <div id="chat-messages"></div>
-
       <div id="chat-input-area">
         <input type="text" id="chat-input" placeholder="Digite sua pergunta..." />
         <button id="chat-send">Enviar</button>
       </div>
     </div>
   </div>
-
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 

@@ -53,12 +53,18 @@ COLLECTION_NAME = os.environ.get(
 
 
 # ============================================================
-# DOCUMENTOS DO RAG
+# DOCUMENTOS DO RAG (Caminho Relativo: Pasta "arquivos")
 # ============================================================
 
-# Seu PDF está na raiz do projeto → caminho relativo OK
+# 1. Descobre onde o config.py está (dentro da pasta 'app')
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# 2. Sobe um nível para achar a raiz do projeto
+PROJECT_ROOT = os.path.dirname(APP_DIR)
+
+# 3. Aponta para a pasta 'arquivos' que você criou
 PDF_FILES = [
-    r"C:\RAG_data\documento_final.pdf"
+    os.path.join(PROJECT_ROOT, "arquivos", "documento_final.pdf")
 ]
 # ============================================================
 # CHUNK CONFIG
