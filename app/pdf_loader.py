@@ -1,5 +1,3 @@
-# app/pdf_loader.py (VERSÃO SILENCIOSA)
-
 import logging
 import os
 from PyPDF2 import PdfReader
@@ -8,7 +6,7 @@ from app.config import CHUNK_SIZE, CHUNK_OVERLAP
 from app.utils import extract_urls, contains_paren_link, normalize_whitespace
 
 logger = logging.getLogger("app.pdf_loader")
-logger.setLevel(logging.INFO) # Deixamos o logger de ERRO, mas tiramos os PRINTs
+logger.setLevel(logging.INFO)
 
 
 def extract_text_from_pdf(pdf_path: str):
@@ -75,10 +73,8 @@ def extract_text_from_pdf(pdf_path: str):
                 start += step 
 
         except Exception as e:
-            # Mantemos o print de ERRO de página
             print(f"[PDF DEBUG] Erro na página {page_number+1}: {e}")
             continue
 
-    # O único print que deixamos é o total final
     print(f"    -> {len(chunks)} chunks extraídos.")
     return chunks

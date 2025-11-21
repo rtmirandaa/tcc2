@@ -4,27 +4,18 @@ import re
 import unicodedata
 
 
-# ============================================================
 # REGEX PARA URLs
-# ============================================================
-
-# Captura URLs sem engolir ')', ']' ou vírgulas no fim.
-# Evita capturar pontuação final.
 URL_REGEX = re.compile(
     r"(https?://[^\s\)\]\}\>\.,;:]+)"
 )
 
-# Captura links dentro de parênteses, ex:
-# (https://ufrgs.br/manual)
+# Captura links dentro de parênteses
 PAREN_LINK_REGEX = re.compile(
     r"\([^()]*https?://[^\s\)]+[^()]*\)"
 )
 
 
-# ============================================================
 # EXTRAÇÃO E DETECÇÃO DE LINKS
-# ============================================================
-
 def extract_urls(text: str):
     """
     Extrai todas as URLs de um texto usando regex robusta.
@@ -45,10 +36,7 @@ def contains_paren_link(text: str) -> bool:
     return bool(PAREN_LINK_REGEX.search(text))
 
 
-# ============================================================
 # NORMALIZAÇÕES
-# ============================================================
-
 def normalize_whitespace(s: str) -> str:
     """
     Remove múltiplos espaços, tabs e quebras de linha excessivas.
@@ -77,10 +65,7 @@ def normalize_text(s: str) -> str:
     return s
 
 
-# ============================================================
 # DETECÇÃO DE IDIOMA (HEURÍSTICA SIMPLES)
-# ============================================================
-
 def detect_language_heuristic(text: str) -> str:
     """
     Heurística muito simples para detectar idioma.

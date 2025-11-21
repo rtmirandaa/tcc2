@@ -1,4 +1,3 @@
-# app/routes.py
 """
 Rotas da aplicação Flask.
 
@@ -19,10 +18,6 @@ from app.config import PEDAGOGICAL_TERMS
 logger = logging.getLogger("app.routes")
 logger.setLevel(logging.INFO)
 
-
-# ---------------------------------------------------------
-# Utilitário para converter resultados do Chroma em JSON
-# ---------------------------------------------------------
 def _json_safe(obj):
     import numpy as np
 
@@ -41,21 +36,13 @@ def _json_safe(obj):
     return obj
 
 
-# ---------------------------------------------------------
 # Registro das rotas
-# ---------------------------------------------------------
 def register_routes(app):
-
-    # -----------------------------------------------------
-    # Página inicial
-    # -----------------------------------------------------
     @app.route("/")
     def home():
         return render_template("index.html")
 
-    # -----------------------------------------------------
-    # Endpoint principal /ask
-    # -----------------------------------------------------
+    # Endpoint principal 
     @app.route("/ask", methods=["POST"])
     def ask_api():
         data = request.get_json(force=True) or {}
@@ -71,9 +58,7 @@ def register_routes(app):
 
         return jsonify({"answer": answer})
 
-    # -----------------------------------------------------
     # Endpoint de inspeção vetorial (debug)
-    # -----------------------------------------------------
     @app.route("/admin/inspect", methods=["GET"])
     def inspect():
         """

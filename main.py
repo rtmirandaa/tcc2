@@ -1,13 +1,9 @@
-# main.py (VERSÃO MAIS LIMPA)
 """
 Ponto de entrada da aplicação Flask.
 """
 
 import os
 import logging
-
-import app
-print(f"USANDO APP EM: {app.__file__}") # Este é útil, vamos deixar
 
 
 from app import create_app
@@ -23,7 +19,7 @@ if __name__ == "__main__":
     BASE_DIR = os.path.abspath(os.path.dirname(__file__))
     os.chdir(BASE_DIR)
 
-    # 1. ATUALIZA OS EMBEDDINGS (agora com prints limpos)
+    # 1. ATUALIZA OS EMBEDDINGS
     try:
         update_embeddings()
     except Exception as e:

@@ -1,5 +1,3 @@
-# app/rag_engine.py
-
 import re
 import unicodedata
 import logging
@@ -16,9 +14,7 @@ from app.utils import URL_REGEX
 logger = logging.getLogger("app.rag_engine")
 logger.setLevel(logging.INFO)
 
-# ============================================================
 # MENSAGENS PADRÃO
-# ============================================================
 
 WHATSAPP_LINK = "https://wa.me/555133086794"
 
@@ -34,7 +30,6 @@ GREETINGS_KEYWORDS = {
     "tudo bem", "e ai", "hey", "opa"
 }
 
-# Resposta estática para contatos (Essa não falha)
 CONTACT_RESPONSE = (
     "Aqui estão os contatos oficiais da COMGRAD (Comissão de Graduação de Letras):\n\n"
     "• E-mail: comlet@ufrgs.br\n"
@@ -43,10 +38,7 @@ CONTACT_RESPONSE = (
     "• Site: www.ufrgs.br/letras"
 )
 
-# ============================================================
 # FUNÇÕES AUXILIARES
-# ============================================================
-
 def normalize_text(s: str) -> str:
     if not s: return ""
     return "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn").lower()
@@ -67,10 +59,26 @@ def check_contact_intent(text_norm: str) -> str:
 def score_chunk(doc_text: str, metadata: dict, q_norm: str):
     score = 1.0
     text_norm = normalize_text(doc_text)
+    
+    #Boosts
     if metadata.get("contains_paren_link"): score *= 3.0
     if any(term in text_norm for term in PEDAGOGICAL_TERMS): score *= 1.8
     for word in q_norm.split():
         if len(word) > 2 and word in text_norm: score *= 1.4
+
+    #Específico
+    wants_contact = any(x in q_norm for x in ["contato", "email", "fone", "telefone"])
+    has_contact_data = any(x in text_norm for x in ["@", "3308", "(51)", "comlet"])
+    if wants_contact and has_contact_data:
+        score *= 10.0
+
+    #TCC
+    if "tcc" in q_norm and ("document" in q_norm or "entrega" in q_norm or "obrigatorio" in q_norm):
+        tcc_keywords = ["termo de autorizacao", "ata de defesa", "requerimento de matricula", "arquivo do tcc", "biblioteca lume"]
+        
+        if any(k in text_norm for k in tcc_keywords):
+            score *= 20.0 
+
     return score
 
 def build_context_text(sorted_chunks):
@@ -91,10 +99,7 @@ def build_context_text(sorted_chunks):
     context = "\n\n---\n\n".join(parts)
     return context, allowed_urls
 
-# ============================================================
 # PIPELINE PRINCIPAL
-# ============================================================
-
 def get_answer_from_rag(query: str) -> str:
     if not query or not query.strip(): return FALLBACK_MSG
 
@@ -102,18 +107,15 @@ def get_answer_from_rag(query: str) -> str:
     q_correct = q.replace("congrad", "comgrad").replace("CONGRAD", "COMGRAD")
     q_norm = normalize_text(q_correct)
 
-    # 1) Saudação
     greeting_resp = check_greeting(q_norm)
     if greeting_resp: return greeting_resp
 
-    # 2) Contato (Curto-Circuito)
     contact_resp = check_contact_intent(q_norm)
     if contact_resp: return contact_resp
 
-    # 3) Busca
     collection = chroma_manager.get_or_create_collection()
     alt_query = f"{q_correct} PPC Projeto Pedagógico Curricular currículo link oficial repositório Letras UFRGS"
-    res_main, res_alt = chroma_manager.vector_search(collection, q_correct, alt_query, k=25)
+    res_main, res_alt = chroma_manager.vector_search(collection, q_correct, alt_query, k=10) 
 
     docs = []
     for res in (res_main, res_alt):
@@ -131,7 +133,7 @@ def get_answer_from_rag(query: str) -> str:
 
     if not docs: return FALLBACK_MSG
 
-    # 4) Ranking
+    #Ranking
     ranked = []
     for d in docs:
         score = score_chunk(d["document"], d["metadata"], q_norm)
@@ -141,8 +143,6 @@ def get_answer_from_rag(query: str) -> str:
     top_chunks = ranked[:MAX_CONTEXT_CHUNKS]
     context, allowed_urls = build_context_text(top_chunks)
 
-    # 5) Prompt (EQUILIBRADO)
-    # Liberamos ele para responder, mas mantemos o bloqueio de assuntos aleatórios.
     final_prompt = (
         f"CONTEXTO DO MANUAL ACADÊMICO:\n{context}\n\n"
         f"PERGUNTA DO ALUNO: {q}\n\n"
@@ -158,7 +158,7 @@ def get_answer_from_rag(query: str) -> str:
         {"role": "user", "content": final_prompt}
     ]
 
-    # 6) Chamada ao Ollama
+    #Chamada ao Ollama
     try:
         resp = ollama.chat(
             model=OLLAMA_CHAT_MODEL, 
@@ -179,11 +179,9 @@ def get_answer_from_rag(query: str) -> str:
         logger.exception("Erro ao chamar o Ollama:")
         return FALLBACK_MSG
 
-    # 7) Fallback (Removemos a lista de frases proibidas, confiamos no SEM_RESPOSTA)
     if "SEM_RESPOSTA" in content or not content.strip():
         return FALLBACK_MSG
 
-    # 8) Limpeza
     detected_urls = set(URL_REGEX.findall(content))
     for url in detected_urls:
         if url not in allowed_urls:

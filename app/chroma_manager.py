@@ -1,4 +1,3 @@
-# app/chroma_manager.py (VERSÃO COM 5 ETAPAS)
 """
 Gerenciamento do ChromaDB.
 """
@@ -26,9 +25,7 @@ logger = logging.getLogger("app.chroma_manager")
 logger.setLevel(logging.INFO)
 
 
-# -----------------------------------------------------------
 # Cliente do ChromaDB
-# -----------------------------------------------------------
 def get_chroma_client():
     try:
         abs_path = os.path.abspath(CHROMA_DB_PATH)
@@ -39,9 +36,7 @@ def get_chroma_client():
         raise
 
 
-# -----------------------------------------------------------
 # Hashing de PDFs
-# -----------------------------------------------------------
 def compute_pdf_hash(pdf_path: str) -> str:
     abs_path = os.path.abspath(pdf_path)
     if not os.path.exists(abs_path):
@@ -73,9 +68,7 @@ def save_hash_map(hash_map: Dict[str, str]):
         logger.error(f"Erro ao salvar hash map '{HASH_MAP_FILE}': {e}")
 
 
-# -----------------------------------------------------------
-# Obter ou criar coleção
-# -----------------------------------------------------------
+# cria coleção
 def get_or_create_collection():
     client = get_chroma_client()
     try:
@@ -88,10 +81,6 @@ def get_or_create_collection():
         logger.error(f"Erro ao criar/abrir coleção '{COLLECTION_NAME}': {e}")
         raise
 
-
-# -----------------------------------------------------------
-# Remover chunks de um PDF específico
-# -----------------------------------------------------------
 def remove_pdf_chunks(collection, pdf_name: str):
     try:
         result = collection.get(include=["metadatas"])
@@ -110,14 +99,11 @@ def remove_pdf_chunks(collection, pdf_name: str):
 
         if ids_to_delete:
             collection.delete(ids=ids_to_delete)
-            # print(f"    -> Removidos {len(ids_to_delete)} chunks antigos.") # Opcional
     except Exception as e:
         logger.error(f"Erro ao remover chunks de '{pdf_name}': {e}")
 
 
-# -----------------------------------------------------------
-# Atualização incremental (COM AS 5 ETAPAS)
-# -----------------------------------------------------------
+# Atualização incremental
 def update_embeddings():
     
     print("\n--- Iniciando verificação do banco de dados (RAG) ---")
@@ -144,7 +130,6 @@ def update_embeddings():
             print("    -> PDF sem modificações.")
             continue
 
-        # Se chegou aqui, o PDF mudou
         pdf_atualizado = True
         print(f"Etapa 4/5: PDF modificado. Extraindo texto...")
         docs = extract_text_from_pdf(pdf)
@@ -154,15 +139,14 @@ def update_embeddings():
             continue
 
         print(f"Etapa 5/5: Indexando {len(docs)} chunks (isso pode demorar)...")
-        remove_pdf_chunks(collection, pdf) # Limpa chunks antigos
+        remove_pdf_chunks(collection, pdf) 
 
-        BATCH_SIZE = 5 # (Pequeno para não travar o Ollama)
+        BATCH_SIZE = 5 
         batch_docs = []
         batch_ids = []
         batch_metas = []
         count = 0
 
-        # Usamos tqdm aqui para ter uma barra de progresso!
         for i, d in tqdm(enumerate(docs), total=len(docs), desc="    -> Indexando"):
             doc_id = (
                 f"{os.path.basename(pdf)}__page{d['page_number']}__chunk{i}"
@@ -176,7 +160,7 @@ def update_embeddings():
                 "char_start": d["char_start"],
                 "char_end": d["char_end"],
                 "contains_paren_link": d["contains_paren_link"],
-                "source_urls": d["source_urls"] # Já deve ser '||' do loader
+                "source_urls": d["source_urls"] 
             })
 
             if len(batch_docs) == BATCH_SIZE:
@@ -191,7 +175,6 @@ def update_embeddings():
                 batch_metas.clear()
                 gc.collect() 
 
-        # enviar o resto
         if batch_docs:
             collection.add(
                 documents=batch_docs,
@@ -213,9 +196,6 @@ def update_embeddings():
     print("--- Verificação do RAG concluída! ---")
 
 
-# -----------------------------------------------------------
-# Busca vetorial (sem mudanças)
-# -----------------------------------------------------------
 def vector_search(collection, query: str, alt_query: str, k: int = 20):
     def _safe_query(q):
         try:

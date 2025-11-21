@@ -1,12 +1,6 @@
-# app/config.py
-
 import os
 import unicodedata
 
-
-# ============================================================
-# NORMALIZAÇÃO DE TERMOS
-# ============================================================
 
 def _normalize_term(term: str) -> str:
     """Remove acentos, normaliza e converte para minúsculas."""
@@ -19,10 +13,6 @@ def _normalize_term(term: str) -> str:
     ).lower().strip()
 
 
-# ============================================================
-# MODELOS DO OLLAMA
-# ============================================================
-
 OLLAMA_EMBEDDING_MODEL = os.environ.get(
     "OLLAMA_EMBEDDING_MODEL",
     "nomic-embed-text:latest"
@@ -34,11 +24,7 @@ OLLAMA_CHAT_MODEL = os.environ.get(
 )
 
 
-# ============================================================
-# BANCO VETORIAL / CHROMA
-# ============================================================
 
-# Caminho ABSOLUTO para garantir que o banco seja persistente
 CHROMA_DB_PATH = os.path.abspath(
     os.environ.get(
         "CHROMA_DB_PATH",
@@ -56,49 +42,29 @@ COLLECTION_NAME = os.environ.get(
 # DOCUMENTOS DO RAG (Caminho Relativo: Pasta "arquivos")
 # ============================================================
 
-# 1. Descobre onde o config.py está (dentro da pasta 'app')
+
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# 2. Sobe um nível para achar a raiz do projeto
 PROJECT_ROOT = os.path.dirname(APP_DIR)
-
-# 3. Aponta para a pasta 'arquivos' que você criou
 PDF_FILES = [
     os.path.join(PROJECT_ROOT, "arquivos", "documento_final.pdf")
 ]
-# ============================================================
-# CHUNK CONFIG
-# ============================================================
+
 
 CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 2000))
 CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 20))
 
-
-# ============================================================
 # HASH MAP
-# ============================================================
+
 
 HASH_MAP_FILE = "pdf_hashes.json"
 
 
-# ============================================================
-# LIMITES DO CONTEXTO
-# ============================================================
-
 MAX_CONTEXT_CHUNKS = int(os.environ.get("MAX_CONTEXT_CHUNKS", 10))
 
-
-# ============================================================
-# RETRY DE EMBEDDINGS
-# ============================================================
 
 EMBEDDING_RETRY_ATTEMPTS = 3
 EMBEDDING_RETRY_BACKOFF = 1.2
 
-
-# ============================================================
-# TERMOS PEDAGÓGICOS (NORMALIZADOS)
-# ============================================================
 
 _RAW_PEDAGOGICAL_TERMS = [
     "ppc",
