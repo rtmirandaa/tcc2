@@ -4,7 +4,6 @@ const chatMessages = document.getElementById("chat-messages");
 const chatInput = document.getElementById("chat-input");
 const chatSend = document.getElementById("chat-send");
 
-// Abrir/Fechar Chat
 chatToggle.addEventListener("click", () => {
   chatContainer.classList.toggle("open");
   if (chatContainer.classList.contains("open")) {
@@ -21,32 +20,26 @@ chatInput.addEventListener("keypress", e => {
   }
 });
 
-// --- FUNÇÃO DE FORMATAÇÃO (CIRURGIÃO DE LINKS) ---
 function createBotMessage(text) {
   const botMsg = document.createElement("div");
   botMsg.className = "bot-msg";
 
   let formatted = text;
 
-  // 1. Negrito: **texto** vira <strong>texto</strong>
   formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
-  // 2. Listas: " * texto" ou "* texto" vira pular linha + bolinha
   formatted = formatted.replace(/(^|\s)\* (.*?)/g, '\n• $2');
 
-  // 3. LINKS (A CORREÇÃO ESTÁ AQUI)
-// Regex para detecção de links
   const urlRegex = /((https?:\/\/|www\.|[\w.-]*\.?ufrgs\.br)[^\s<]*)/g;
 
   formatted = formatted.replace(urlRegex, (match) => {
     
-    let cleanUrl = match.replace(/[.,;>)]+$/, "");                                          // Remove pontuação final
+    let cleanUrl = match.replace(/[.,;>)]+$/, "");                                          
 
-                                                                                            // Remove prefixos incorretos
     if (cleanUrl.startsWith(".")) {cleanUrl = cleanUrl.substring(1);}
     if (cleanUrl.startsWith("1.")) {cleanUrl = cleanUrl.substring(2);}
 
-                                                                                            // Adiciona https
+                                                                                            
     let href = cleanUrl;
     if (!href.startsWith("http")) {
       href = "https://" + href;

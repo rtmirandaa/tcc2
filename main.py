@@ -19,14 +19,12 @@ if __name__ == "__main__":
     BASE_DIR = os.path.abspath(os.path.dirname(__file__))
     os.chdir(BASE_DIR)
 
-    # 1. ATUALIZA OS EMBEDDINGS
     try:
         update_embeddings()
     except Exception as e:
         print(f"[ERRO GRAVE] Falha ao atualizar embeddings: {e}\n")
         print(">> O servidor será iniciado, mas o RAG pode não funcionar.\n")
 
-    # 2. INICIA O FLASK
     print("\n--- Iniciando servidor Flask ---")
 
     app_flask = create_app()

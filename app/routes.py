@@ -27,7 +27,6 @@ def _json_safe(obj):
     if isinstance(obj, list):
         return [_json_safe(x) for x in obj]
 
-    # numpy → tipos nativos
     if isinstance(obj, (np.float32, np.float64)):
         return float(obj)
     if isinstance(obj, (np.int32, np.int64)):
@@ -36,13 +35,11 @@ def _json_safe(obj):
     return obj
 
 
-# Registro das rotas
 def register_routes(app):
     @app.route("/")
     def home():
         return render_template("index.html")
-
-    # Endpoint principal 
+ 
     @app.route("/ask", methods=["POST"])
     def ask_api():
         data = request.get_json(force=True) or {}
@@ -58,7 +55,6 @@ def register_routes(app):
 
         return jsonify({"answer": answer})
 
-    # Endpoint de inspeção vetorial (debug)
     @app.route("/admin/inspect", methods=["GET"])
     def inspect():
         """

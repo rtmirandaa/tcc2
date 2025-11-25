@@ -1,11 +1,8 @@
-/* ============================================================
-   ESTILO GLOBAL
-   ============================================================ */
+
 :root {
-  /* Paleta Instituto de Letras */
-  --cor-fundo: #f2f0e9;       /* Creme suave */
-  --cor-header: #ffffff;      /* Branco */
-  --cor-primaria: #9e8e58;    /* Dourado/Bronze */
+  --cor-fundo: #f2f0e9;       
+  --cor-header: #ffffff;      
+  --cor-primaria: #9e8e58;    
   --cor-primaria-dark: #7a6d42; 
   --cor-texto: #2c2c2c;       
   --cor-texto-suave: #555555;
@@ -17,15 +14,11 @@ body {
   color: var(--cor-texto);
   margin: 0;
   padding: 0;
-  /* Ajuste para o rodapé ficar sempre embaixo */
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-/* ============================================================
-   CABEÇALHO
-   ============================================================ */
 header {
   background-color: var(--cor-header);
   color: var(--cor-texto);
@@ -57,15 +50,12 @@ header h1 {
   padding-left: 20px;
 }
 
-/* ============================================================
-   CONTEÚDO PRINCIPAL
-   ============================================================ */
 main {
   padding: 40px;
-  max-width: 1200px; /* Aumentei um pouco para caberem os 4 cards com folga */
+  max-width: 1200px; 
   margin: 40px auto;
   flex: 1; 
-  width: 95%; /* Garante margem em telas menores */
+  width: 95%; 
   box-sizing: border-box;
   
   background: #ffffff;
@@ -91,7 +81,6 @@ main {
   line-height: 1.6;
 }
 
-/* --- GRADE DE SUGESTÕES (CORRIGIDA) --- */
 .suggestions h3 {
   color: var(--cor-texto);
   font-size: 1.1rem;
@@ -106,20 +95,16 @@ main {
 
 .grid-container {
   display: grid;
-  /* CORREÇÃO: Força 4 colunas de tamanho igual */
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   text-align: left;
 }
 
-/* Responsividade: Em telas médias (tablets), usa 2 colunas */
 @media (max-width: 900px) {
   .grid-container {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-
-/* Responsividade: Em celulares, usa 1 coluna */
 @media (max-width: 600px) {
   .grid-container {
     grid-template-columns: 1fr;
@@ -134,7 +119,6 @@ main {
   padding: 20px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   
-  /* Garante que o conteúdo não quebre o card */
   display: flex;
   flex-direction: column;
   height: 100%; 
@@ -171,9 +155,6 @@ main {
   border-radius: 4px;
 }
 
-/* ============================================================
-   RODAPÉ
-   ============================================================ */
 footer {
   background-color: var(--cor-texto);
   color: #fff;
@@ -219,9 +200,7 @@ footer {
   transform: scale(1.05);
 }
 
-/* ============================================================
-   CHATBOT FLUTUANTE
-   ============================================================ */
+
 #chatbot {
   position: fixed;
   bottom: 20px;
